@@ -1,4 +1,4 @@
-package be.vdab.fietsacademy.valueobjects;
+package be.vdab.fietsacademy.queryresults;
 
 import java.math.BigDecimal;
 

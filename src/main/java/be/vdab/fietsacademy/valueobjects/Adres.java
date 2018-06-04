@@ -13,19 +13,13 @@ public class Adres implements Serializable {
 	private String gemeente;
 
 	protected Adres() {
-		super();
 	}
 
 	public Adres(String straat, String huisNr, String postcode, String gemeente) {
-		super();
 		this.straat = straat;
 		this.huisNr = huisNr;
 		this.postcode = postcode;
 		this.gemeente = gemeente;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 	public String getStraat() {

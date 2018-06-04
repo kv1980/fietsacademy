@@ -1,4 +1,4 @@
-package be.vdab.fietsacademy.valueobjects;
+package be.vdab.fietsacademy.queryresults;
 
 public class IdEnEmailAdres {
 	private final long id;

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import be.vdab.fietsacademy.entities.Docent;
-import be.vdab.fietsacademy.valueobjects.AantalDocentenPerWedde;
-import be.vdab.fietsacademy.valueobjects.IdEnEmailAdres;
+import be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde;
+import be.vdab.fietsacademy.queryresults.IdEnEmailAdres;
 
 public interface DocentRepository {
 	void create(Docent docent);

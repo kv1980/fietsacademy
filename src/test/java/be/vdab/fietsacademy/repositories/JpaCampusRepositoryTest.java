@@ -1,6 +1,9 @@
 package be.vdab.fietsacademy.repositories;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import javax.persistence.EntityManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +29,10 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	private static final String CAMPUSSEN = "campussen";
 	@Autowired
 	private JpaCampusRepository repository;
+	@Autowired
+	private EntityManager manager;
 	private Campus campus;
+	
 
 	@Before
 	public void before() {
@@ -36,19 +42,34 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	private long idVanTestCampus() {
 		return super.jdbcTemplate.queryForObject("select id from campussen where naam='testNaam'", Long.class);
 	}
-
+	
 	@Test
-	public void read() {
-		Campus campus = repository.read(idVanTestCampus()).get();
-		assertEquals("testNaam", campus.getNaam());
-		assertEquals("testGemeente", campus.getAdres().getGemeente());
-	}
-
-	@Test
-	public void create() {
+	public void create_creert_een_campus() {
 		int aantalCampussen = super.countRowsInTable(CAMPUSSEN);
 		repository.create(campus);
 		assertEquals(aantalCampussen + 1, super.countRowsInTable(CAMPUSSEN));
 		assertEquals(1, super.countRowsInTableWhere(CAMPUSSEN, "id=" + campus.getId()));
+	}
+
+	@Test
+	public void read_leest_een_bestaande_campus() {
+		Campus campus = repository.read(idVanTestCampus()).get();
+		assertEquals("testNaam", campus.getNaam());
+		assertEquals("testGemeente", campus.getAdres().getGemeente());
+	}
+	
+	@Test
+	public void read_leest_onbestaande_campus_niet() {
+		assertFalse(repository.read(-1L).isPresent());
+	}
+	
+	@Test
+	public void delete_verwijdert_een_campus() {
+		long id = idVanTestCampus();
+		int aantalCampussen = super.countRowsInTable(CAMPUSSEN);
+		repository.delete(id);
+		manager.flush();
+		assertEquals(aantalCampussen - 1, super.countRowsInTable(CAMPUSSEN));
+		assertEquals(0,super.countRowsInTableWhere(CAMPUSSEN,"id = "+id));
 	}
 }

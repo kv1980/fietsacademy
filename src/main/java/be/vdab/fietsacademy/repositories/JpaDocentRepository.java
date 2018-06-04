@@ -1,8 +1,6 @@
 package be.vdab.fietsacademy.repositories;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +9,8 @@ import javax.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import be.vdab.fietsacademy.entities.Docent;
-import be.vdab.fietsacademy.valueobjects.AantalDocentenPerWedde;
-import be.vdab.fietsacademy.valueobjects.IdEnEmailAdres;
+import be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde;
+import be.vdab.fietsacademy.queryresults.IdEnEmailAdres;
 
 @Repository
 class JpaDocentRepository implements DocentRepository {
@@ -58,7 +56,7 @@ class JpaDocentRepository implements DocentRepository {
 
 	@Override
 	public List<IdEnEmailAdres> findIdsEnEmailAdressen() {
-		return manager.createQuery("select new be.vdab.fietsacademy.valueobjects.IdEnEmailAdres(d.id,d.emailAdres) from Docent d", IdEnEmailAdres.class)
+		return manager.createQuery("select new be.vdab.fietsacademy.queryresults.IdEnEmailAdres(d.id,d.emailAdres) from Docent d", IdEnEmailAdres.class)
 				      .getResultList();
 	}
 
@@ -70,7 +68,7 @@ class JpaDocentRepository implements DocentRepository {
 
 	@Override
 	public List<AantalDocentenPerWedde> findAantalDocentenPerWedde() {
-		return manager.createQuery("select new be.vdab.fietsacademy.valueobjects.AantalDocentenPerWedde(d.wedde,count(d)) from Docent d group by d.wedde",AantalDocentenPerWedde.class)
+		return manager.createQuery("select new be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde(d.wedde,count(d)) from Docent d group by d.wedde",AantalDocentenPerWedde.class)
 					  .getResultList();
 	}
 

@@ -22,4 +22,9 @@ public class JpaCampusRepository implements CampusRepository {
 	public Optional<Campus> read(long id) {
 		return Optional.ofNullable(manager.find(Campus.class, id));
 	}
+
+	@Override
+	public void delete(long id) {
+		read(id).ifPresent(campus -> manager.remove(campus));
+	}
 }

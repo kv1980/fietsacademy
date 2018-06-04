@@ -25,8 +25,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import be.vdab.fietsacadamy.enums.Geslacht;
 import be.vdab.fietsacademy.entities.Docent;
-import be.vdab.fietsacademy.valueobjects.AantalDocentenPerWedde;
-import be.vdab.fietsacademy.valueobjects.IdEnEmailAdres;
+import be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde;
+import be.vdab.fietsacademy.queryresults.IdEnEmailAdres;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest

@@ -23,7 +23,6 @@ public class Campus implements Serializable {
 	private Adres adres;
 
 	protected Campus() {
-		super();
 	}
 
 	public Campus(String naam, Adres adres) {
@@ -41,5 +40,9 @@ public class Campus implements Serializable {
 
 	public Adres getAdres() {
 		return adres;
+	}
+	
+	public void setAdres(Adres adres) {
+		this.adres = adres;
 	}
 }
