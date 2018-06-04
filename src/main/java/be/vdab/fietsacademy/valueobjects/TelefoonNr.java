@@ -20,10 +20,6 @@ public class TelefoonNr implements Serializable {
 		this.opmerking = opmerking;
 	}
 	
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-	
 	public String getNummer() {
 		return nummer;
 	}

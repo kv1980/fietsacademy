@@ -7,5 +7,5 @@ import be.vdab.fietsacademy.entities.Campus;
 public interface CampusRepository {
 	void create(Campus campus);
 	Optional<Campus> read(long id);
-	void delete(long id);
+/*	void delete(long id);*/
 }
