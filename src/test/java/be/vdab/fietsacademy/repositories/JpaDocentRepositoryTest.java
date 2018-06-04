@@ -1,9 +1,6 @@
 package be.vdab.fietsacademy.repositories;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +36,7 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	@Autowired
 	private EntityManager manager;
 	private static final String DOCENTEN = "docenten";
+	private static final String DOCENTENBIJNAMEN = "docentenbijnamen";
 	private Docent docent;
 
 	@Before
@@ -101,8 +99,7 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		}
 	}
 
-	// -----------------------mogelijke
-	// verbetering------------------------------------------
+	// -----------------------mogelijke verbetering------------------------------------------
 	@Test
 	public void findByWeddeBetween() {
 		BigDecimal duizend = BigDecimal.valueOf(1000);
@@ -116,8 +113,7 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		});
 	}
 
-	// -----------------------mogelijke
-	// verbetering------------------------------------------
+	// -----------------------mogelijke verbetering------------------------------------------
 	@Test
 	public void findEmailAdressen() {
 		List<String> adressen = repository.findEmailAdressen();
@@ -162,53 +158,28 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 				BigDecimal.class, idVanTestMan());
 		assertEquals(0, nieuweWeddeVanTestM.compareTo(BigDecimal.valueOf(1_100)));
 	}
-
+	
 	@Test
-	public void eenNieuweDocentHeeftGeenBijnamen() {
-		assertTrue(docent.getBijnamen().isEmpty());
+	public void bijnamenLezen() {
+		Docent docent = repository.read(idVanTestMan()).get();
+		assertEquals(1,docent.getBijnamen().size());
+		assertTrue(docent.getBijnamen().contains("testBijnaam"));
 	}
-
-	@Test
+	
+	@Test 
 	public void bijnaamToevoegen() {
-		assertTrue(docent.addBijnaam("test"));
-		assertEquals(1, docent.getBijnamen().size());
-		assertTrue(docent.getBijnamen().contains("test"));
+		repository.create(docent);
+		docent.addBijnaam("testBijnaam");
+		manager.flush();
+		assertEquals("testBijnaam",super.jdbcTemplate.queryForObject(
+				"select bijnaam from docentenbijnamen where docentid=?",String.class,docent.getId()));
 	}
-
-	@Test
-	public void tweeKeerDezelfdeBijnaamToevoegenKanNiet() {
-		docent.addBijnaam("test");
-		assertFalse(docent.addBijnaam("test"));
-		assertEquals(1, docent.getBijnamen().size());
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void nullAlsBijnaamToevoegenKanNiet() {
-		docent.addBijnaam(null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void eenLegeBijnaamToevoegenKanNiet() {
-		docent.addBijnaam("");
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void eenBijnaamMetEnkelSpatiesToevoegenKanNiet() {
-		docent.addBijnaam(" ");
-	}
-
-	@Test
+	
+	@Test 
 	public void bijnaamVerwijderen() {
-		docent.addBijnaam("test");
-		assertTrue(docent.removeBijnaam("test"));
-		assertTrue(docent.getBijnamen().isEmpty());
-	}
-
-	@Test
-	public void eenBijnaamVerwijderenDieJeNietToevoegdeKanNiet() {
-		docent.addBijnaam("test");
-		assertFalse(docent.removeBijnaam("test2"));
-		assertEquals(1, docent.getBijnamen().size());
-		assertTrue(docent.getBijnamen().contains("test"));
+		Docent docent = repository.read(idVanTestMan()).get();
+		docent.removeBijnaam("testBijnaam");
+		manager.flush();
+		assertEquals(0,super.countRowsInTableWhere(DOCENTENBIJNAMEN,"docentid = "+docent.getId()+" and bijnaam = 'testBijnaam'"));		
 	}
 }
