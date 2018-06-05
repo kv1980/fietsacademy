@@ -40,7 +40,4 @@ public class TelefoonNrTest {
 	public void tweeGelijkeTelefoonNrsHebbenDezelfdeHashCode() {
 		assertEquals(nummer1.hashCode(),nogEensNummer1.hashCode());
 	}
-	
-	
-	
 }
