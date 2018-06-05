@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
@@ -33,6 +34,10 @@ public class Campus implements Serializable {
 	@CollectionTable(name = "campussentelefoonnrs",joinColumns = @JoinColumn(name = "campusId"))
 	@OrderBy("fax")
 	private Set<TelefoonNr> telefoonNrs;
+	@OneToMany
+	@JoinColumn(name = "campusid")
+	@OrderBy("voornaam, familienaam")
+	private Set<Docent> docenten;
 	
 	protected Campus() {
 	}
@@ -41,6 +46,7 @@ public class Campus implements Serializable {
 		this.naam = naam;
 		this.adres = adres;
 		this.telefoonNrs = new LinkedHashSet();
+		this.docenten = new LinkedHashSet();
 	}
 
 	public long getId() {
@@ -73,6 +79,15 @@ public class Campus implements Serializable {
 /*	public boolean removeTelefoonNr(TelefoonNr telefoonNr) {
 		return telefoonNrs.remove(telefoonNr);
 	}*/
-
 	
+	public Set<Docent> getDocenten(){
+		return Collections.unmodifiableSet(docenten);
+	}
+	
+	public boolean addDocent(Docent docent) {
+		if (docent == null) {
+			throw new NullPointerException();
+		}
+		return docenten.add(docent);
+	}
 }

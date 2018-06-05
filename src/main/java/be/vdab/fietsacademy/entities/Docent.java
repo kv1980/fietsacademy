@@ -41,21 +41,21 @@ public class Docent implements Serializable {
 	@CollectionTable(name = "docentenbijnamen", joinColumns = @JoinColumn(name = "docentid"))
 	@Column(name = "bijnaam")
 	private Set<String> bijnamen;
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+/*	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "campusid")
-	private Campus campus;
+	private Campus campus;*/
 
 	protected Docent() {
 	}
 
-	public Docent(String voornaam, String familienaam, BigDecimal wedde, String emailAdres, Geslacht geslacht,Campus campus) {
+	public Docent(String voornaam, String familienaam, BigDecimal wedde, String emailAdres, Geslacht geslacht/*,Campus campus*/) {
 		this.voornaam = voornaam;
 		this.familienaam = familienaam;
 		this.wedde = wedde;
 		this.emailAdres = emailAdres;
 		this.geslacht = geslacht;
 		this.bijnamen = new LinkedHashSet<>();
-		setCampus(campus);
+		/*setCampus(campus);*/
 	}
 
 	public long getId() {
@@ -105,7 +105,7 @@ public class Docent implements Serializable {
 		return bijnamen.remove(bijnaam);
 	}
 	
-	public void setCampus(Campus campus) {
+/*	public void setCampus(Campus campus) {
 		if (campus == null) {
 			throw new NullPointerException();
 		}
@@ -114,5 +114,19 @@ public class Docent implements Serializable {
 
 	public Campus getCampus() {
 		return campus;
+	}*/
+	
+	@Override
+	public boolean equals(Object object) {
+		if(!(object instanceof Docent)) {
+			return false;
+		}
+		Docent docent = (Docent) object;
+		return emailAdres == null ? false : emailAdres.equalsIgnoreCase(docent.emailAdres);
+	}
+	
+	@Override
+	public int hashCode() {
+		return emailAdres == null ? 0 : emailAdres.toLowerCase().hashCode();
 	}
 }

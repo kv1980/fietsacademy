@@ -1,6 +1,10 @@
 package be.vdab.fietsacademy.repositories;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
 
 import javax.persistence.EntityManager;
 
@@ -16,6 +20,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import be.vdab.fietsacadamy.enums.Geslacht;
 import be.vdab.fietsacademy.entities.Campus;
 import be.vdab.fietsacademy.entities.Docent;
 import be.vdab.fietsacademy.valueobjects.Adres;
@@ -35,12 +40,14 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	private EntityManager manager;
 	private Campus campus;
 	private TelefoonNr telefoonNr;
+	private Docent docent;
 	
 
 	@Before
 	public void before() {
 		campus = new Campus("Naam", new Adres("Straat", "HuisNr", "PostCode", "Gemeente"));
 		telefoonNr = new TelefoonNr("1",false,"testOpmerking");
+		docent = new Docent("Voornaam","Familienaam",BigDecimal.TEN,"EmailAdres@fietsacademy.be",Geslacht.MAN);
 	}
 
 	private long idVanTestCampus() {
@@ -100,4 +107,14 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		manager.flush();
 		assertEquals(0,super.countRowsInTableWhere(CAMPUSSENTELEFOONNUMMERS,"campusid = "+campus.getId()+" and nummer = '1'"));		
 	}*/
+	
+	@Test 
+	public void docentToevoegen() {
+		manager.persist(docent);
+		repository.create(campus);
+		campus.addDocent(docent);
+		manager.flush();
+		assertEquals("EmailAdres@fietsacademy.be",super.jdbcTemplate.queryForObject(
+				"select emailAdres from docenten where campusid=?",String.class,campus.getId()));
+	}
 }

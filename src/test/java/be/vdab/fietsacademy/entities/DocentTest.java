@@ -2,6 +2,7 @@ package be.vdab.fietsacademy.entities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -14,13 +15,15 @@ import be.vdab.fietsacademy.valueobjects.Adres;
 
 public class DocentTest {
 	private final static BigDecimal ORIGINELE_WEDDE = BigDecimal.valueOf(200);
-	private Docent docent1;
+	private Docent docent1, nogEenDocent1, docent2;
 	private Campus campus1;
 
 	@Before
 	public void before() {
 		campus1 = new Campus("testNaam", new Adres("testStraat","testHuisNr","testPostCode","testGemeente"));
-		docent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test@fietsacademy.be", Geslacht.MAN,campus1);
+		docent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test@fietsacademy.be", Geslacht.MAN/*,campus1*/);
+		nogEenDocent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test@fietsacademy.be", Geslacht.MAN/*,campus1*/);
+		docent2 = new Docent("test2", "test2", ORIGINELE_WEDDE, "test2@fietsacademy.be", Geslacht.MAN/*,campus1*/);
 	}
 
 	@Test
@@ -91,5 +94,35 @@ public class DocentTest {
 		assertFalse(docent1.removeBijnaam("test2"));
 		assertEquals(1, docent1.getBijnamen().size());
 		assertTrue(docent1.getBijnamen().contains("test"));
+	}
+	
+	@Test 
+	public void docentenZijnGelijkAlsHunEmailAdressenGelijkZijn() {
+		assertEquals(docent1, nogEenDocent1);
+	}
+	
+	@Test 
+	public void docentenZijnVerschillendAlsHunEmailAdressenVerschillen() {
+		assertNotEquals(docent1, docent2);
+	}
+	
+	@Test 
+	public void eenDocentVerschiltVanNull() {
+		assertNotEquals(docent1, null);
+	}
+	
+	@Test 
+	public void	eenDocentVerschiltVanEenAnderTypeObject() {
+		assertNotEquals(docent1, "");
+	} 
+	
+	@Test 
+	public void gelijkeDocentenGevenDezelfdeHashCode() {
+		assertEquals(docent1.hashCode(), nogEenDocent1.hashCode()); 
+	}
+
+	@Test 
+	public void verschillendeDocentenGevenVerschillendeHashCode() {
+		assertNotEquals(docent1.hashCode(), docent2.hashCode()); 
 	}
 }
