@@ -34,8 +34,7 @@ public class Campus implements Serializable {
 	@CollectionTable(name = "campussentelefoonnrs",joinColumns = @JoinColumn(name = "campusId"))
 	@OrderBy("fax")
 	private Set<TelefoonNr> telefoonNrs;
-	@OneToMany
-	@JoinColumn(name = "campusid")
+	@OneToMany(mappedBy = "campus")
 	@OrderBy("voornaam, familienaam")
 	private Set<Docent> docenten;
 	
@@ -88,32 +87,16 @@ public class Campus implements Serializable {
 		if (docent == null) {
 			throw new NullPointerException();
 		}
-		return docenten.add(docent);
+		boolean toegevoegd = docenten.add(docent);
+		if (toegevoegd) {
+			Campus oudeCampus = docent.getCampus();
+			if (oudeCampus != this) {
+				docent.setCampus(this);
+				if (oudeCampus != null) {
+					oudeCampus.docenten.remove(docent);
+				}
+			}
+		}
+		return toegevoegd;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((naam == null) ? 0 : naam.toUpperCase().hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Campus))
-			return false;
-		Campus other = (Campus) obj;
-		if (naam == null) {
-			if (other.naam != null)
-				return false;
-		} else if (!naam.equalsIgnoreCase(other.naam))
-			return false;
-		return true;
-	}
-	
 }

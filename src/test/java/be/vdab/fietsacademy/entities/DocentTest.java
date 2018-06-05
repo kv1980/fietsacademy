@@ -16,14 +16,15 @@ import be.vdab.fietsacademy.valueobjects.Adres;
 public class DocentTest {
 	private final static BigDecimal ORIGINELE_WEDDE = BigDecimal.valueOf(200);
 	private Docent docent1, nogEenDocent1, docent2;
-	private Campus campus1;
+	private Campus campus1, campus2;
 
 	@Before
 	public void before() {
-		campus1 = new Campus("testNaam", new Adres("testStraat","testHuisNr","testPostCode","testGemeente"));
-		docent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test@fietsacademy.be", Geslacht.MAN/*,campus1*/);
-		nogEenDocent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test@fietsacademy.be", Geslacht.MAN/*,campus1*/);
-		docent2 = new Docent("test2", "test2", ORIGINELE_WEDDE, "test2@fietsacademy.be", Geslacht.MAN/*,campus1*/);
+		campus1 = new Campus("testNaam1", new Adres("testStraat1","testHuisNr1","testPostCode1","testGemeente1"));
+		campus2 = new Campus("testNaam2", new Adres("testStraat2","testHuisNr2","testPostCode2","testGemeente2"));
+		docent1 = new Docent("test1", "test1", ORIGINELE_WEDDE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
+		nogEenDocent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
+		docent2 = new Docent("test2", "test2", ORIGINELE_WEDDE, "test2@fietsacademy.be", Geslacht.MAN,campus1);
 	}
 
 	@Test
@@ -54,15 +55,15 @@ public class DocentTest {
 
 	@Test
 	public void bijnaamToevoegen() {
-		assertTrue(docent1.addBijnaam("test"));
+		assertTrue(docent1.addBijnaam("testBijnaam"));
 		assertEquals(1, docent1.getBijnamen().size());
-		assertTrue(docent1.getBijnamen().contains("test"));
+		assertTrue(docent1.getBijnamen().contains("testBijnaam"));
 	}
 
 	@Test
 	public void tweeKeerDezelfdeBijnaamToevoegenKanNiet() {
-		docent1.addBijnaam("test");
-		assertFalse(docent1.addBijnaam("test"));
+		docent1.addBijnaam("testBijnaam");
+		assertFalse(docent1.addBijnaam("testBijnaam"));
 		assertEquals(1, docent1.getBijnamen().size());
 	}
 
@@ -83,17 +84,17 @@ public class DocentTest {
 
 	@Test
 	public void bijnaamVerwijderen() {
-		docent1.addBijnaam("test");
-		assertTrue(docent1.removeBijnaam("test"));
+		docent1.addBijnaam("testBijnaam");
+		assertTrue(docent1.removeBijnaam("testBijnaam"));
 		assertTrue(docent1.getBijnamen().isEmpty());
 	}
 
 	@Test
 	public void eenBijnaamVerwijderenDieJeNietToevoegdeKanNiet() {
-		docent1.addBijnaam("test");
-		assertFalse(docent1.removeBijnaam("test2"));
+		docent1.addBijnaam("testBijnaam");
+		assertFalse(docent1.removeBijnaam("testGeenBijnaam"));
 		assertEquals(1, docent1.getBijnamen().size());
-		assertTrue(docent1.getBijnamen().contains("test"));
+		assertTrue(docent1.getBijnamen().contains("testBijnaam"));
 	}
 	
 	@Test 
@@ -124,5 +125,26 @@ public class DocentTest {
 	@Test 
 	public void verschillendeDocentenGevenVerschillendeHashCode() {
 		assertNotEquals(docent1.hashCode(), docent2.hashCode()); 
+	}
+	
+	@Test
+	public void eenCampusKanMeerdereDocentenBevatten() {
+		assertTrue(campus1.getDocenten().contains(docent1));
+		assertTrue(campus1.getDocenten().contains(docent2));
+	}
+	
+	@Test
+	public void docent1KomtVoorInCampus1() {
+		assertEquals(campus1,docent1.getCampus());
+		assertTrue(campus1.getDocenten().contains(docent1));
+	}
+	
+	@Test
+	public void docent1VerhuistNaarCampus2() {
+		docent1.setCampus(campus2);
+		assertNotEquals(campus1,docent1.getCampus());
+		assertEquals(campus2,docent1.getCampus());
+		assertFalse(campus1.getDocenten().contains(docent1));
+		assertTrue(campus2.getDocenten().contains(docent1));
 	}
 }

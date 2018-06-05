@@ -2,6 +2,7 @@ package be.vdab.fietsacademy.repositories;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -34,21 +35,23 @@ import be.vdab.fietsacademy.valueobjects.TelefoonNr;
 @Sql("/insertDocent.sql")
 public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
 	private static final String CAMPUSSEN = "campussen";
-	private static final String CAMPUSSENTELEFOONNUMMERS = "campussentelefoonnummers";
+	/*private static final String CAMPUSSENTELEFOONNUMMERS = "campussentelefoonnummers";*/
 	@Autowired
 	private JpaCampusRepository repository;
 	@Autowired
 	private EntityManager manager;
-	private Campus campus;
+	private Campus campus1,campus2;
 	private TelefoonNr telefoonNr;
-	private Docent docent;
+	private Docent docent1;
 	
 
 	@Before
 	public void before() {
-		campus = new Campus("Naam", new Adres("Straat", "HuisNr", "PostCode", "Gemeente"));
-		telefoonNr = new TelefoonNr("1",false,"testOpmerking");
-		docent = new Docent("Voornaam","Familienaam",BigDecimal.TEN,"EmailAdres@fietsacademy.be",Geslacht.MAN);
+		campus1 = new Campus("testNaam1", new Adres("testStraat1","testHuisNr1","testPostCode1","testGemeente1"));
+		campus2 = new Campus("testNaam2", new Adres("testStraat2","testHuisnr2","testPostcode2","testGemeente2"));
+		telefoonNr = new TelefoonNr("testNummer",false,"");
+		docent1 = new Docent("testVoornaam1", "testFamilienaam1", BigDecimal.ONE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
+
 	}
 
 	private long idVanTestCampus() {
@@ -58,9 +61,9 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	@Test
 	public void create_creert_een_campus() {
 		int aantalCampussen = super.countRowsInTable(CAMPUSSEN);
-		repository.create(campus);
+		repository.create(campus1);
 		assertEquals(aantalCampussen + 1, super.countRowsInTable(CAMPUSSEN));
-		assertEquals(1, super.countRowsInTableWhere(CAMPUSSEN, "id=" + campus.getId()));
+		assertEquals(1, super.countRowsInTableWhere(CAMPUSSEN, "id=" + campus1.getId()));
 	}
 
 	@Test
@@ -94,11 +97,11 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	
 	@Test 
 	public void telefoonNrToevoegen() {
-		repository.create(campus);
-		campus.addTelefoonNr(telefoonNr);
+		repository.create(campus1);
+		campus1.addTelefoonNr(telefoonNr);
 		manager.flush();
-		assertEquals("1",super.jdbcTemplate.queryForObject(
-				"select nummer from campussentelefoonnrs where campusid=?",String.class,campus.getId()));
+		assertEquals("testNummer",super.jdbcTemplate.queryForObject(
+				"select nummer from campussentelefoonnrs where campusid=?",String.class,campus1.getId()));
 	}
 	
 /*	@Test 
@@ -110,13 +113,36 @@ public class JpaCampusRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	}*/
 	
 	@Test 
-	public void docentToevoegen() {
-		manager.persist(docent);
-		repository.create(campus);
-		campus.addDocent(docent);
+	public void eenCampusKrijgtEenDocentCorrectToegewezen() {
+		repository.create(campus1);
+		manager.persist(docent1);
+		campus1.addDocent(docent1);
 		manager.flush();
-		assertEquals("EmailAdres@fietsacademy.be",super.jdbcTemplate.queryForObject(
-				"select emailAdres from docenten where campusid=?",String.class,campus.getId()));
+		assertEquals("test1@fietsacademy.be",super.jdbcTemplate.queryForObject(
+				"select emailAdres from docenten where campusid=?",String.class,campus1.getId()));
+	}
+	
+	@Test 
+	public void deNieuweCampusKrijgtEenDocentCorrectToegewezenNaVerhuis() {
+		repository.create(campus1);
+		repository.create(campus2);
+		manager.persist(docent1);
+		campus1.addDocent(docent1);
+		campus2.addDocent(docent1);
+		manager.flush();
+		assertEquals("test1@fietsacademy.be",super.jdbcTemplate.queryForObject(
+				"select emailAdres from docenten where campusid=?",String.class,campus2.getId()));
+	}
+	
+	@Test 
+	public void deOudeCampusKrijgtEenDocentNietMeerToegewezenNaVerhuis() {
+		repository.create(campus1);
+		repository.create(campus2);
+		manager.persist(docent1);
+		campus1.addDocent(docent1);
+		campus2.addDocent(docent1);
+		manager.flush();
+		assertEquals(0,super.countRowsInTableWhere("docenten","campusid = "+campus1.getId()));
 	}
 	
 	@Test

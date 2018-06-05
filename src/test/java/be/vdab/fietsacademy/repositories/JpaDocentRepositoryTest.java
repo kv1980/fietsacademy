@@ -43,16 +43,15 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	private EntityManager manager;
 	private static final String DOCENTEN = "docenten";
 	private static final String DOCENTENBIJNAMEN = "docentenbijnamen";
+	private Campus campus1,campus2;
 	private Docent docent1;
-	private Docent docent2;
-	private Campus campus1;
+
 
 	@Before
 	public void before() {
-		campus1 = new Campus("test", new Adres("test","test","test","test"));
-		docent1 = new Docent("test", "test", BigDecimal.TEN, "test@fietsacademy.be", Geslacht.MAN/*,campus1*/);
-		campus1.addDocent(docent1);
-		docent2 = new Docent("test2","test2",BigDecimal.TEN,"test2@fietsacademy.be", Geslacht.MAN);
+		campus1 = new Campus("testNaam1", new Adres("testStraat1","testHuisNr1","testPostCode1","testGemeente1"));
+		campus2 = new Campus("testNaam2", new Adres("testStraat2","testHuisnr2","testPostcode2","testGemeente2"));
+		docent1 = new Docent("testVoornaam1", "testFamilienaam1", BigDecimal.ONE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
 	}
 
 	private long idVanTestMan() {
@@ -199,11 +198,39 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		assertEquals(0,super.countRowsInTableWhere(DOCENTENBIJNAMEN,"docentid = "+docent.getId()+" and bijnaam = 'testBijnaam'"));		
 	}
 	
-/*	@Test
+	@Test
 	public void campusWordtGevondenNaLazyLoading() {
 		Docent docent = repository.read(idVanTestMan()).get();
 		assertEquals("testNaam",docent.getCampus().getNaam());
-	}*/
+	}
 	
-
+	@Test
+	public void eenDocentWordtCorrectToegevoegdAanEenCampus() {
+		manager.persist(campus1);
+		repository.create(docent1);
+		manager.flush();
+		assertEquals("test1@fietsacademy.be",super.jdbcTemplate.queryForObject(
+				"select emailAdres from docenten where campusid=?",String.class,campus1.getId()));
+	}
+	
+	@Test
+	public void eenDocentIsNietMeerToegevoegdAanDeOudeCampusNaVerhuis() {
+		manager.persist(campus1);
+		manager.persist(campus2);
+		repository.create(docent1);
+		docent1.setCampus(campus2);
+		manager.flush();
+		assertEquals(0,super.countRowsInTableWhere("docenten","campusid = "+campus1.getId()));
+	}
+	
+	@Test
+	public void eenDocentWordtCorrectToegevoegdAanEenNieuweCampusNaVerhuis() {
+		manager.persist(campus1);
+		manager.persist(campus2);
+		repository.create(docent1);
+		docent1.setCampus(campus2);
+		manager.flush();
+		assertEquals("test1@fietsacademy.be",super.jdbcTemplate.queryForObject(
+				"select emailAdres from docenten where campusid=?",String.class,campus2.getId()));
+	}
 }
