@@ -25,6 +25,7 @@ import be.vdab.fietsacademy.repositories.DocentRepository;
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import(DefaultDocentService.class)
 @ComponentScan(basePackageClasses = DocentRepository.class)
+@Sql("/insertCampus.sql")
 @Sql("/insertDocent.sql")
 public class DefaultDocentServiceIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
 	@Autowired
