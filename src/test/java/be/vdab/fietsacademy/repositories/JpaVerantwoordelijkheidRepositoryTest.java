@@ -38,6 +38,7 @@ public class JpaVerantwoordelijkheidRepositoryTest extends AbstractTransactional
 	@Autowired
 	JpaVerantwoordelijkheidRepository repository;
 	private static final String VERANTWOORDELIJKHEDEN = "verantwoordelijkheden";
+	private static final String DOCENTENVERANTWOORDELIJKHEDEN = "docentenverantwoordelijkheden";
 	@Autowired
 	private EntityManager manager;
 	private Verantwoordelijkheid verantwoordelijkheid;
@@ -60,28 +61,13 @@ public class JpaVerantwoordelijkheidRepositoryTest extends AbstractTransactional
 	}
 	
 	@Test
-	public void create_voegt_een_verantwoordelijkheid_zonder_docenten_correct_toe() {
+	public void create_voegt_een_verantwoordelijkheid_correct_toe() {
 		int aantalVerantwoordelijkheden = super.countRowsInTable(VERANTWOORDELIJKHEDEN);
 		repository.create(verantwoordelijkheid);
 		manager.flush();
 		assertEquals(aantalVerantwoordelijkheden+1,super.countRowsInTable(VERANTWOORDELIJKHEDEN));
 		assertEquals(1,super.countRowsInTableWhere(VERANTWOORDELIJKHEDEN,"id = "+verantwoordelijkheid.getId()));
 		assertEquals("testNaam",super.jdbcTemplate.queryForObject("select naam from verantwoordelijkheden where id=?",String.class,verantwoordelijkheid.getId()));
-	}
-	
-	@Test
-	public void create_voegt_een_verantwoordelijkheid_met_docenten_correct_toe() {
-		int aantalVerantwoordelijkheden = super.countRowsInTable(VERANTWOORDELIJKHEDEN);
-		manager.persist(campus);
-		manager.persist(docent);
-		repository.create(verantwoordelijkheid);
-		verantwoordelijkheid.add(docent);
-		manager.flush();
-		assertEquals(aantalVerantwoordelijkheden+1,super.countRowsInTable(VERANTWOORDELIJKHEDEN));
-		assertEquals(1,super.countRowsInTableWhere(VERANTWOORDELIJKHEDEN,"id = "+verantwoordelijkheid.getId()));
-		assertEquals("testNaam",super.jdbcTemplate.queryForObject("select naam from verantwoordelijkheden where id=?",String.class,verantwoordelijkheid.getId()));
-		assertEquals(docent.getId(), super.jdbcTemplate.queryForObject(
-				"select docentid from docentenverantwoordelijkheden where verantwoordelijkheidid=?", Long.class, verantwoordelijkheid.getId()).longValue());
 	}
 	
 	@Test 
@@ -101,8 +87,34 @@ public class JpaVerantwoordelijkheidRepositoryTest extends AbstractTransactional
 		Verantwoordelijkheid verantwoordelijkheid = repository.read(idVanTestVerantwoordelijkheidMetDocenten()).get();
 		assertEquals("testMetDocenten",verantwoordelijkheid.getNaam());
 		assertEquals(1, verantwoordelijkheid.getDocenten().size());
-		assertTrue(verantwoordelijkheid.getDocenten().contains(new Docent("xxx","xxx",BigDecimal.ZERO,"testM@fietsacademy.be",Geslacht.MAN,campus)));
+		assertEquals(1L,verantwoordelijkheid.getDocenten().stream()
+				                                     .filter(docent -> docent.getEmailAdres().equals("test@fietsacademy.be"))
+				                                     .count());
 	}
 	
-
+	@Test
+	public void add_voegt_een_docent_toe_aan_een_verantwoordelijkheid() {
+		manager.persist(campus);
+		manager.persist(docent);
+		Verantwoordelijkheid verantwoordelijkheid = repository.read(idVanTestVerantwoordelijkheidZonderDocenten()).get();
+		long aantalDocentenVoorToevoeging = super.countRowsInTableWhere(DOCENTENVERANTWOORDELIJKHEDEN,"verantwoordelijkheidid = "+verantwoordelijkheid.getId());
+		verantwoordelijkheid.add(docent);
+		manager.flush();
+		assertEquals(aantalDocentenVoorToevoeging+1,super.countRowsInTableWhere(DOCENTENVERANTWOORDELIJKHEDEN,"verantwoordelijkheidid = "+verantwoordelijkheid.getId()));
+		assertEquals(docent.getId(), super.jdbcTemplate.queryForObject(
+				"select docentid from docentenverantwoordelijkheden where verantwoordelijkheidid=?", Long.class, verantwoordelijkheid.getId()).longValue());
+	}
+	
+	@Test
+	public void remove_verwijdert_een_docent_toe_aan_een_verantwoordelijkheid() {
+		Verantwoordelijkheid verantwoordelijkheid = repository.read(idVanTestVerantwoordelijkheidMetDocenten()).get();
+		long aantalDocentenVoorVerwijdering = super.countRowsInTableWhere(DOCENTENVERANTWOORDELIJKHEDEN,"verantwoordelijkheidid = "+verantwoordelijkheid.getId());
+		Docent docent = verantwoordelijkheid.getDocenten().stream()
+													      .findFirst()
+													      .get();
+		verantwoordelijkheid.remove(docent);
+		manager.flush();
+		assertEquals(aantalDocentenVoorVerwijdering-1,super.countRowsInTableWhere(DOCENTENVERANTWOORDELIJKHEDEN,"verantwoordelijkheidid = "+verantwoordelijkheid.getId()));
+		assertEquals(0,super.countRowsInTableWhere(DOCENTENVERANTWOORDELIJKHEDEN,"verantwoordelijkheidid ="+verantwoordelijkheid.getId()+" and docentid = "+docent.getId()));
+	}
 }
