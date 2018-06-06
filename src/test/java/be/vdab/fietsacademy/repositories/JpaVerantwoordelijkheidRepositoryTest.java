@@ -88,8 +88,8 @@ public class JpaVerantwoordelijkheidRepositoryTest extends AbstractTransactional
 		assertEquals("testMetDocenten",verantwoordelijkheid.getNaam());
 		assertEquals(1, verantwoordelijkheid.getDocenten().size());
 		assertEquals(1L,verantwoordelijkheid.getDocenten().stream()
-				                                     .filter(docent -> docent.getEmailAdres().equals("test@fietsacademy.be"))
-				                                     .count());
+				                                          .filter(docent -> docent.getEmailAdres().equals("test@fietsacademy.be"))
+				                                          .count());
 	}
 	
 	@Test
