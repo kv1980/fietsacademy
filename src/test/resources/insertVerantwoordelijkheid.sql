@@ -1,2 +1,3 @@
 insert into verantwoordelijkheden(naam) 
-	value("testNaam");
+	values("testMetDocenten"),
+		  ("testZonderDocenten");

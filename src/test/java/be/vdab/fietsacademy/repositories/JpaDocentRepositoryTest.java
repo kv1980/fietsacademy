@@ -231,13 +231,15 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 				"select emailAdres from docenten where campusid=?",String.class,campus2.getId()));
 	}
 	
+	@Test
 	public void verantwoordelijkhedenLezen() {
 		Docent docent = repository.read(idVanTestMan()).get();
 		assertEquals(1, docent.getVerantwoordelijkheden().size());
 		assertTrue(docent.getVerantwoordelijkheden().contains(new Verantwoordelijkheid("test")));
 		}
 	
-	@Test public void verantwoordelijkheidToevoegen() {
+	@Test 
+	public void verantwoordelijkheidToevoegen() {
 		Verantwoordelijkheid verantwoordelijkheid = new Verantwoordelijkheid("test2");
 		manager.persist(verantwoordelijkheid);
 		manager.persist(campus1);
