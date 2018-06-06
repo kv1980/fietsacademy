@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import be.vdab.fietsacadamy.enums.Geslacht;
 import be.vdab.fietsacademy.entities.Campus;
 import be.vdab.fietsacademy.entities.Docent;
+import be.vdab.fietsacademy.entities.Verantwoordelijkheid;
 import be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde;
 import be.vdab.fietsacademy.queryresults.IdEnEmailAdres;
 import be.vdab.fietsacademy.valueobjects.Adres;
@@ -34,7 +35,9 @@ import be.vdab.fietsacademy.valueobjects.Adres;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Sql("/insertCampus.sql")
+@Sql("/insertVerantwoordelijkheid.sql")
 @Sql("/insertDocent.sql")
+@Sql("/insertDocentVerantwoordelijkheid.sql")
 @Import(JpaDocentRepository.class)
 public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
 	@Autowired
@@ -199,12 +202,6 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	}
 	
 	@Test
-	public void campusWordtGevondenNaLazyLoading() {
-		Docent docent = repository.read(idVanTestMan()).get();
-		assertEquals("testNaam",docent.getCampus().getNaam());
-	}
-	
-	@Test
 	public void eenDocentWordtCorrectToegevoegdAanEenCampus() {
 		manager.persist(campus1);
 		repository.create(docent1);
@@ -233,4 +230,20 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		assertEquals("test1@fietsacademy.be",super.jdbcTemplate.queryForObject(
 				"select emailAdres from docenten where campusid=?",String.class,campus2.getId()));
 	}
+	
+	public void verantwoordelijkhedenLezen() {
+		Docent docent = repository.read(idVanTestMan()).get();
+		assertEquals(1, docent.getVerantwoordelijkheden().size());
+		assertTrue(docent.getVerantwoordelijkheden().contains(new Verantwoordelijkheid("test")));
+		}
+	
+	@Test public void verantwoordelijkheidToevoegen() {
+		Verantwoordelijkheid verantwoordelijkheid = new Verantwoordelijkheid("test2");
+		manager.persist(verantwoordelijkheid);
+		manager.persist(campus1);
+		repository.create(docent1);
+		docent1.addVerantwoordelijkheid(verantwoordelijkheid);
+		manager.flush();
+		assertEquals(verantwoordelijkheid.getId(), super.jdbcTemplate.queryForObject("select verantwoordelijkheidid from docentenverantwoordelijkheden where docentid=?", Long.class, docent1.getId()).longValue());
+		}	
 }

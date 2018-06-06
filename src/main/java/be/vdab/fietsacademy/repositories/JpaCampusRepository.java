@@ -4,8 +4,11 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.stereotype.Repository;
+
 import be.vdab.fietsacademy.entities.Campus;
 
+@Repository
 public class JpaCampusRepository implements CampusRepository {
 	private final EntityManager manager;
 	

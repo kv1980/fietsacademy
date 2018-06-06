@@ -19,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -44,6 +45,8 @@ public class Docent implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "campusid")
 	private Campus campus;
+	@ManyToMany(mappedBy = "docenten")
+	private Set<Verantwoordelijkheid> verantwoordelijkheden = new LinkedHashSet();
 
 	protected Docent() {
 	}
@@ -81,17 +84,25 @@ public class Docent implements Serializable {
 	public Geslacht getGeslacht() {
 		return geslacht;
 	}
-
+	
+	public Set<String> getBijnamen() {
+		return Collections.unmodifiableSet(bijnamen);
+	}
+	
+	public Campus getCampus() {
+		return campus;
+	}
+	
+	public Set<Verantwoordelijkheid> getVerantwoordelijkheden(){
+		return Collections.unmodifiableSet(verantwoordelijkheden);
+	}
+	
 	public void opslag(BigDecimal percentage) {
 		if (percentage.compareTo(BigDecimal.ZERO) <= 0) {
 			throw new IllegalArgumentException();
 		}
 		BigDecimal factor = BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100)));
 		wedde = wedde.multiply(factor, new MathContext(2, RoundingMode.HALF_UP));
-	}
-
-	public Set<String> getBijnamen() {
-		return Collections.unmodifiableSet(bijnamen);
 	}
 	
 	public boolean addBijnaam(String bijnaam) {
@@ -114,22 +125,34 @@ public class Docent implements Serializable {
 		}
 		this.campus = campus;
 	}
-
-	public Campus getCampus() {
-		return campus;
+	
+	public boolean addVerantwoordelijkheid(Verantwoordelijkheid verantwoordelijkheid) {
+		boolean toegevoegd = verantwoordelijkheden.add(verantwoordelijkheid);
+		if(!(verantwoordelijkheid.getDocenten().contains(this))) {
+			verantwoordelijkheid.add(this);
+		}
+		return toegevoegd;
 	}
 	
+	public boolean removeVerantwoordelijkheid(Verantwoordelijkheid verantwoordelijkheid) {
+		boolean verwijderd = verantwoordelijkheden.remove(verantwoordelijkheid);
+		if(verantwoordelijkheid.getDocenten().contains(this)) {
+			verantwoordelijkheid.remove(this);
+		}
+		return verwijderd;
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if(!(object instanceof Docent)) {
 			return false;
 		}
 		Docent docent = (Docent) object;
-		return emailAdres == null ? false : emailAdres.equalsIgnoreCase(docent.emailAdres);
+		return emailAdres.equalsIgnoreCase(docent.emailAdres);
 	}
 	
 	@Override
 	public int hashCode() {
-		return emailAdres == null ? 0 : emailAdres.toLowerCase().hashCode();
+		return emailAdres.toLowerCase().hashCode();
 	}
 }

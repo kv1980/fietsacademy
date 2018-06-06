@@ -17,6 +17,7 @@ public class DocentTest {
 	private final static BigDecimal ORIGINELE_WEDDE = BigDecimal.valueOf(200);
 	private Docent docent1, nogEenDocent1, docent2;
 	private Campus campus1, campus2;
+	private Verantwoordelijkheid verantwoordelijkheid1;
 
 	@Before
 	public void before() {
@@ -25,6 +26,7 @@ public class DocentTest {
 		docent1 = new Docent("test1", "test1", ORIGINELE_WEDDE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
 		nogEenDocent1 = new Docent("test", "test", ORIGINELE_WEDDE, "test1@fietsacademy.be", Geslacht.MAN,campus1);
 		docent2 = new Docent("test2", "test2", ORIGINELE_WEDDE, "test2@fietsacademy.be", Geslacht.MAN,campus1);
+		verantwoordelijkheid1 = new Verantwoordelijkheid("EHBO");
 	}
 
 	@Test
@@ -128,15 +130,14 @@ public class DocentTest {
 	}
 	
 	@Test
-	public void eenCampusKanMeerdereDocentenBevatten() {
-		assertTrue(campus1.getDocenten().contains(docent1));
-		assertTrue(campus1.getDocenten().contains(docent2));
-	}
-	
-	@Test
 	public void docent1KomtVoorInCampus1() {
 		assertEquals(campus1,docent1.getCampus());
 		assertTrue(campus1.getDocenten().contains(docent1));
+	}
+	
+	@Test (expected =  NullPointerException.class)
+	public void docent1KanNietVerhuizenNaarNull() {
+		docent1.setCampus(null);
 	}
 	
 	@Test
@@ -146,5 +147,33 @@ public class DocentTest {
 		assertEquals(campus2,docent1.getCampus());
 		assertFalse(campus1.getDocenten().contains(docent1));
 		assertTrue(campus2.getDocenten().contains(docent1));
+	}
+	
+	@Test
+	public void verantwoordelijkheidToevoegen() {
+		assertTrue(docent1.getVerantwoordelijkheden().isEmpty());
+		assertTrue(docent1.addVerantwoordelijkheid(verantwoordelijkheid1));
+		assertEquals(1,docent1.getVerantwoordelijkheden().size());
+		assertTrue(docent1.getVerantwoordelijkheden().contains(verantwoordelijkheid1));
+		assertEquals(1,verantwoordelijkheid1.getDocenten().size());
+		assertTrue(verantwoordelijkheid1.getDocenten().contains(docent1));
+	}
+	
+	@Test
+	public void eenBestaandeVerantwoordelijkheidVerwijderen() {
+		assertTrue(docent1.addVerantwoordelijkheid(verantwoordelijkheid1));
+		assertTrue(docent1.removeVerantwoordelijkheid(verantwoordelijkheid1));
+		assertTrue(docent1.getVerantwoordelijkheden().isEmpty());
+		assertTrue(verantwoordelijkheid1.getDocenten().isEmpty());
+	}
+	
+	@Test
+	public void eenNietBestaandeVerantwoordelijkheidVerwijderen() {
+		assertTrue(docent1.addVerantwoordelijkheid(verantwoordelijkheid1));
+		assertFalse(docent1.removeVerantwoordelijkheid(new Verantwoordelijkheid("test")));
+		assertEquals(1,docent1.getVerantwoordelijkheden().size());
+		assertTrue(docent1.getVerantwoordelijkheden().contains(verantwoordelijkheid1));
+		assertEquals(1,verantwoordelijkheid1.getDocenten().size());
+		assertTrue(verantwoordelijkheid1.getDocenten().contains(docent1));
 	}
 }
