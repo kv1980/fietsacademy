@@ -21,14 +21,20 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 
 import be.vdab.fietsacadamy.enums.Geslacht;
 
 @Entity
 @Table(name = "docenten")
+@NamedEntityGraph(name= Docent.MET_CAMPUS_EN_VERANTWOORDELIJKHEDEN,
+	attributeNodes = {@NamedAttributeNode("campus"),
+					  @NamedAttributeNode("verantwoordelijkheden")})
 public class Docent implements Serializable {
 	private static final long serialVersionUID = 1L;
+	public static final String MET_CAMPUS_EN_VERANTWOORDELIJKHEDEN = "Docent.metCampusEnVerantwoordelijkheden";
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

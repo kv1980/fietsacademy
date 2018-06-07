@@ -122,11 +122,13 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		BigDecimal duizend = BigDecimal.valueOf(1000);
 		BigDecimal tweeduizend = BigDecimal.valueOf(2000);
 		List<Docent> docenten = repository.findByWeddeBetween(duizend, tweeduizend);
+		manager.clear();
 		long aantalDocenten = super.countRowsInTableWhere(DOCENTEN, "wedde between 1000 and 2000");
 		assertEquals(aantalDocenten, docenten.size());
 		docenten.forEach(docent -> {
 			assertTrue(docent.getWedde().compareTo(duizend) >= 0);
 			assertTrue(docent.getWedde().compareTo(tweeduizend) <= 0);
+		System.out.println(docent.getFamilienaam()+" : "+docent.getWedde()+" en "+docent.getCampus().getNaam());
 		});
 	}
 
@@ -235,7 +237,7 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	public void verantwoordelijkhedenLezen() {
 		Docent docent = repository.read(idVanTestMan()).get();
 		assertEquals(1, docent.getVerantwoordelijkheden().size());
-		assertTrue(docent.getVerantwoordelijkheden().contains(new Verantwoordelijkheid("test")));
+		assertTrue(docent.getVerantwoordelijkheden().contains(new Verantwoordelijkheid("testMetDocenten")));
 		}
 	
 	@Test 

@@ -45,6 +45,7 @@ class JpaDocentRepository implements DocentRepository {
 		return manager.createNamedQuery("Docent.findByWeddeBetween",Docent.class)
 				      .setParameter("van",van)
 				      .setParameter("tot",tot)
+				      .setHint("javax.persistence.loadgraph",manager.createEntityGraph(Docent.MET_CAMPUS_EN_VERANTWOORDELIJKHEDEN))
 				      .getResultList();
 	}
 
