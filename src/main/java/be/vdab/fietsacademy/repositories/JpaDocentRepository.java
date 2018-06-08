@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +30,11 @@ class JpaDocentRepository implements DocentRepository {
 	public Optional<Docent> read(long id) {
 		return Optional.ofNullable(manager.find(Docent.class, id));
 	}
+	
+	@Override
+	public Optional<Docent> readWithLock(long id) {
+		return Optional.ofNullable(manager.find(Docent.class, id,LockModeType.PESSIMISTIC_WRITE));
+	}
 
 	@Override
 	public void delete(long id) {
@@ -37,7 +43,9 @@ class JpaDocentRepository implements DocentRepository {
 
 	@Override
 	public List<Docent> findAll() {
-		return manager.createQuery("select d from Docent d order by d.wedde",Docent.class).getResultList();
+		return manager.createNamedQuery("Docent.findAll",Docent.class)
+				      .setHint("javax.persistence.loadgraph",manager.createEntityGraph(Docent.MET_CAMPUS_EN_VERANTWOORDELIJKHEDEN))
+					  .getResultList();
 	}
 
 	@Override
@@ -51,25 +59,25 @@ class JpaDocentRepository implements DocentRepository {
 
 	@Override
 	public List<String> findEmailAdressen() {
-		return manager.createQuery("select d.emailAdres from Docent d",String.class)
+		return manager.createNamedQuery("Docent.findEmailAdressen",String.class)
 					  .getResultList();
 	}
 
 	@Override
 	public List<IdEnEmailAdres> findIdsEnEmailAdressen() {
-		return manager.createQuery("select new be.vdab.fietsacademy.queryresults.IdEnEmailAdres(d.id,d.emailAdres) from Docent d", IdEnEmailAdres.class)
+		return manager.createNamedQuery("Docent.findIdsEnEmailAdressen", IdEnEmailAdres.class)
 				      .getResultList();
 	}
 
 	@Override
 	public BigDecimal findGrootsteWedde() {
-		return manager.createQuery("select max(d.wedde) from Docent d",BigDecimal.class)
+		return manager.createNamedQuery("Docent.findGrootsteWedde",BigDecimal.class)
 				      .getSingleResult();
 	}
 
 	@Override
 	public List<AantalDocentenPerWedde> findAantalDocentenPerWedde() {
-		return manager.createQuery("select new be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde(d.wedde,count(d)) from Docent d group by d.wedde",AantalDocentenPerWedde.class)
+		return manager.createNamedQuery("Docent.findAantalDocentenPerWedde",AantalDocentenPerWedde.class)
 					  .getResultList();
 	}
 
@@ -77,6 +85,7 @@ class JpaDocentRepository implements DocentRepository {
 	public int algemeneOpslag(BigDecimal percentage) {
 		return manager.createNamedQuery("Docent.algemeneOpslag")
 					  .setParameter("factor",BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100))))
+					  .setLockMode(LockModeType.PESSIMISTIC_WRITE)
 					  .executeUpdate();
 	}
 }

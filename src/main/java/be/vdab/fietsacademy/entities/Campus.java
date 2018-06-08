@@ -35,6 +35,7 @@ public class Campus implements Serializable {
 	@OrderBy("fax")
 	private Set<TelefoonNr> telefoonNrs;
 	@OneToMany(mappedBy = "campus")
+	//@OneToMany(cascade = CascadeType.REMOVE)
 	@OrderBy("voornaam, familienaam")
 	private Set<Docent> docenten;
 	

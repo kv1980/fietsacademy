@@ -11,6 +11,7 @@ import be.vdab.fietsacademy.queryresults.IdEnEmailAdres;
 public interface DocentRepository {
 	void create(Docent docent);
 	Optional<Docent> read(long id);
+	Optional<Docent> readWithLock(long id);
 	void delete(long id);
 	List<Docent> findAll();
 	List<Docent> findByWeddeBetween(BigDecimal van, BigDecimal tot);

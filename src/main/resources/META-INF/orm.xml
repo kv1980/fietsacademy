@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity-mappings version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd">
+	<named-query name="Docent.findAll">
+		<query>
+			select d 
+			from Docent d
+			order by d.wedde
+		</query>
+	</named-query>
 	<named-query name='Docent.findByWeddeBetween'>
 		<query>
-			select d from Docent d
+			select d 
+			from Docent d
 			where d.wedde between :van and :tot
 			order by d.wedde, d.id
+		</query>
+	</named-query>
+	<named-query name='Docent.findEmailAdressen'>
+		<query>
+			select d.emailAdres 
+			from Docent d
+		</query>
+	</named-query>
+	<named-query name='Docent.findIdsEnEmailAdressen'>
+		<query>
+			select new be.vdab.fietsacademy.queryresults.IdEnEmailAdres(d.id,d.emailAdres) 
+			from Docent d
+		</query>
+	</named-query>
+	<named-query name='Docent.findGrootsteWedde'>
+		<query>
+			select max(d.wedde) 
+			from Docent d
+		</query>
+	</named-query>
+	<named-query name='Docent.findAantalDocentenPerWedde'>
+		<query>
+			select new be.vdab.fietsacademy.queryresults.AantalDocentenPerWedde(d.wedde,count(d)) 
+			from Docent d 
+			group by d.wedde
 		</query>
 	</named-query>
 	<named-query name='Docent.algemeneOpslag'>

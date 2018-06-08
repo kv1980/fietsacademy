@@ -108,11 +108,13 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 	@Test
 	public void findAll() {
 		List<Docent> docenten = repository.findAll();
+		manager.clear();
 		assertEquals(super.countRowsInTable(DOCENTEN), docenten.size());
 		BigDecimal vorigeWedde = BigDecimal.ZERO;
 		for (Docent docent : docenten) {
 			assertTrue(docent.getWedde().compareTo(vorigeWedde) >= 0);
 			vorigeWedde = docent.getWedde();
+			//System.out.println(docent.getFamilienaam()+" : "+docent.getWedde()+" en "+docent.getCampus().getNaam());
 		}
 	}
 
@@ -128,7 +130,7 @@ public class JpaDocentRepositoryTest extends AbstractTransactionalJUnit4SpringCo
 		docenten.forEach(docent -> {
 			assertTrue(docent.getWedde().compareTo(duizend) >= 0);
 			assertTrue(docent.getWedde().compareTo(tweeduizend) <= 0);
-		System.out.println(docent.getFamilienaam()+" : "+docent.getWedde()+" en "+docent.getCampus().getNaam());
+		//System.out.println(docent.getFamilienaam()+" : "+docent.getWedde()+" en "+docent.getCampus().getNaam());
 		});
 	}
 
